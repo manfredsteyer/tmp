@@ -184,7 +184,7 @@ effect(() => {
 );
 ```
 
-This leads to a further increase in complexity. At least this problem could be alleviated with board remedies:
+This leads to a further increase in complexity. At least this problem could be alleviated with built-in features:
 
 ```typescript
 // Try hard to avoid this

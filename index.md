@@ -114,7 +114,7 @@ export class DessertsComponent implements OnInit {
 }
 ```
 
-This makes the code a lot more straightforward: The ``loadRatings`` method simply loads the ratings and places them in a signal. To merge ``desserts`` and ``ratings`` The calculated signal introduced with ``computed`` takes care of ``ratedDesserts`` . No matter when and where the ``desserts`` or ``ratings`` application updates, ``ratedDesserts`` is always up to date.
+This makes the code a lot more straightforward: The ``loadRatings`` method simply loads the ratings and places them in a signal. The ``computed`` Signal ``ratedDesserts`` takes care of mergining ``desserts`` and ``ratings``. No matter when and where the application updates ``desserts`` or ``ratings``, ``ratedDesserts`` is always up to date.
 
 > Primary usage scenario of Signals: binding values reactively to the view.
 

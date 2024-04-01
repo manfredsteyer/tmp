@@ -1,6 +1,6 @@
 # Successful with Signals in Angular - 3 Effective Rules for Your Architecture
 
-It is undisputed that Signals will shape the future of Angular. At first glance, they seem very easy to use: The setters take new values, the getters deliver the current values and the templates as well as effects are notified about changes.
+It is undisputed that Signals will shape the future of Angular. At first glance, they seem very easy to use: The setters take new values, the getters deliver the current values and the templates as well as Effects are notified about changes.
 
 Now you might be tempted to treat Signals like normal variables. This works in principle and can be a practical option when migrating existing code. However, in this case, the advantages of Signals and reactive systems only result to a limited extent. There are also some pitfalls and the resulting code is not as straightforward and hence not as maintainable as it could be.
 
@@ -72,9 +72,9 @@ export class DessertsComponent implements OnInit {
 }
 ```
 
-Since the properties to be bound are neither observables nor Signals, the strategy OnPush cannot be used for improving the data binding performance. Upon closer inspection, we also notice that the ``loadRatings`` method updates the ``desserts`` array, even though its actual task -- loading ratings -- has nothing to do with it.
+Since the properties to be bound are neither Observables nor Signals, the strategy ``OnPush`` cannot be used for improving the data binding performance. Upon closer inspection, we also notice that the ``loadRatings`` method updates the ``desserts`` array, even though its actual task -- loading ratings -- has nothing to do with it.
 
-Additionally, developers must remember that after any changes to the ratings, the ``desserts`` array must also be modified. This is exactly what can lead to hard-to-maintain code and hidden bugs -- especially when both desserts and ratings change at different points. Things become even more complex when additional data structures have to be taken into account in these calculations. The first rule of thumb presented here solves this issue.
+Additionally, developers must remember that after any changes to the ratings, the ``desserts`` array must also be modified. This is exactly what can lead to hard-to-maintain code and hidden bugs -- especially when both ``desserts`` and ``ratings`` change at different points. Things become even more complex when additional data structures have to be taken into account in these calculations. The first rule of thumb presented here solves this issue.
 
 ## Rule 1: Derive State Synchronously
 
@@ -127,7 +127,7 @@ Effects are the right choice when presenting values cannot be achieved via data 
 
 ### Proper Usage of Effects
 
-In most cases, signals are bound in the template. However, it happens that the desired form of output cannot be achieved via data binding. An example of this is outputting a signal to the console for debugging purposes. Another example are toasts that can be activated via services and are intended to present the value of a signal. For these cases, Angular provides effects:
+In most cases, Signals are bound in the template. However, it happens that the desired form of output cannot be achieved via data binding. An example of this is outputting a Signal to the console for debugging purposes. Another example are toasts that can be activated via services and are intended to present the value of a Signal. For these cases, Angular provides Effects:
 
 ```typescript
 […]
@@ -146,7 +146,7 @@ constructor() {
 
 ### Problematic Use of Effects
 
-Even when using effects, Signals are primarily used to transport the desired data into the view. In theory, however, effects could also be used to transmit state to other Signals:
+Even when using Effects, Signals are primarily used to transport the desired data into the view. In theory, however, Effects could also be used to transmit state to other Signals:
 
 ```typescript
 effect(() => {
@@ -154,11 +154,11 @@ effect(() => {
 });
 ```
 
-However, such approaches have several disadvantages, which is why Angular prohibits writing Signals within effects by default:
+However, such approaches have several disadvantages, which is why Angular prohibits writing Signals within Effects by default:
 
-![Error message when trying to set a signal in an effect](signal-write-error.png)
+![Error message when trying to set a Signal in an Effect](signal-write-error.png)
 
-One of these disadvantages is that unmanageable change cascades and thus difficult-to-maintain code and cyclic dependencies can arise. Since effects register implicitly with all Signals used, the associated problems may not even be noticeable at first glance. If you still want to use Effects for writing, you can make Angular turn let things slide by setting ``allowSignalWrites``:
+One of these disadvantages is that unmanageable change cascades and thus difficult-to-maintain code and cyclic dependencies can arise. Since Effects register implicitly with all Signals used, the associated problems may not even be noticeable at first glance. If you still want to use Effects for writing, you can make Angular let things slide by setting ``allowSignalWrites``:
 
 ```typescript
 // Try hard to avoid this
@@ -173,7 +173,7 @@ effect(() => {
 
 The general consensus in the community is that application code should only use ``allowSignalWrites`` as a last resort. On the other hand, libraries like NGRX use this option internally. In this case, however, the authors of the library are responsible for its correct use, so application developers don't have to worry about it.
 
-It is also important to note that the Effect itself registers with Signals in called methods too. The following effect occurs when Signals change within ``search``:
+It is also important to note that the Effect itself registers with Signals in called methods too. For instance, the following Effect is triggered when Signals change within ``search``:
 
 ```typescript
 // Try hard to avoid this
@@ -198,14 +198,14 @@ effect(() => {
 );
 ```
 
-The ``untracked`` function avoids the current reactive context spilling over to the called search method. Angular now also uses this pattern itself in [selected cases](https://github.com/angular/angular/pull/54614). An example of this is triggering events in sub-components so that the event handler does not run in the reactive context of the code that triggered the event. Further popular libraries that use this technique are NGRX, NGRX Signal Store or ngextensions.
+The ``untracked`` function avoids the current reactive context spilling over to the called ``search`` method. Angular now also uses this pattern itself in [selected cases](https://github.com/angular/angular/pull/54614). An example of this is triggering events in sub-components so that the event handler does not run in the reactive context of the code that triggered the event. Further popular libraries that use this technique are NGRX, NGRX Signal Store or ngextensions.
 
 ### Strategies for Preventing Effects With Signal Writes
 
-Effects that spread data via signal writes can in many cases be prevented using the following approaches:
+Effects that spread data via Signal writes can in many cases be prevented using the following approaches:
 
-- Consistent derivation of states using computation (see rule 1, above).
-- Direct use of events that caused the signal to change.
+- Consistent derivation of state using ``computed`` (see rule 1, above).
+- Direct use of events that caused the Signal to change.
 
 Instead of calling ``search``, as indicated above, in an Effect, the application could instead use the change event of the input fields for the search filters. Observables can also be used as a source for such actions. The ``search`` method could, for example, also be triggered by the ``valueChanges`` observable of a ``FormGroup``. In cases where you have just Signals, they can be converted into Observables using the RxJS Interop offered by Angular:
 
@@ -258,7 +258,7 @@ export class DessertsComponent {
 
 The use of Observables has several advantages at this point:
 - In contrast to Signals, Observables are also suitable for triggering asynchronous actions.
-- ``toObservable`` function strips the current reactive context using untracked.
+- ``toObservable`` function strips the current reactive context using ``untracked``.
 - RxJS comes with a lot of powerful operators, like ``debounceTime``.
 - The flattening operators offered by RxJS provide guarantees for overlapping asynchronous actions and thus prevent race conditions. In the example shown, ``switchMap`` ensures that when search queries overlap, only the result of the last one is used and all others are canceled.
 
@@ -268,13 +268,13 @@ Stores like the classic NGRX Store or the lightweight NGRX Signal Store not only
 
 ![Unidirectional data flow with a store](store.png)
 
-The application forwards its intention to the store as part of an event. At this point I use the term intention in an abstract, technology-neutral way, especially since different stores realize this aspect differently. With Redux and therefore also when using the classic NGRX store the application sends an action to the store, which forwards it to Reducer and Effects. For lightweight stores like the NGRX Signal Store, the application delegates to a method offered by the store instead.
+The application forwards its intention to the store as part of an event. At this point, I use the term intention in an abstract, technology-neutral way, especially since different stores realize this aspect differently. With Redux and therefore also when using the classic NGRX store the application sends an action to the store, which forwards it to Reducer and Effects. For lightweight stores like the NGRX Signal Store, the application delegates to a method offered by the store instead.
 
 > Offloading asynchronous operations to the store also compensates for the fact that Signals are currently only designed for synchronous actions.
 
 The store then takes action and initiates synchronous or asynchronous operations. If the application uses RxJS for this, race conditions can be avoided with the flattening operators, as mentioned above. Offloading asynchronous operations to the store also compensates for the fact that Signals are currently only designed for synchronous actions.
 
-The result of these operations leads to a change in the state of the store. These states can be expressed by Signals, which can be mapped to other Signals using computing (see rule 1). This mapping can occur both in the store and in the component (or in another consumer of the store). This depends on how local or global the store and the data to be derived are.
+The result of these operations leads to a change in the state managed by the store. This state can be expressed by Signals, which can be mapped to other Signals using computing (see rule 1). Such mappings can occur both in the store and in the component (or in another consumer of the store). This depends on how local or global the store and the data to be derived are.
 
 The bottom line is that the consistent use of this approach supports the so-called unidirectional data flow, which makes system behavior more understandable. The following listing demonstrates this from the perspective of a component that relies on the NGRX Signal Store.
 
